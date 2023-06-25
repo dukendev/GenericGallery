@@ -27,11 +27,3 @@ data class FolderItem(
     }
 }
 
-data class ImageItem(
-    val path: String,
-    val name: String,
-    val size: Int,
-    val mimeType: String,
-    val bucketName : String,
-    val bucketId : String
-)

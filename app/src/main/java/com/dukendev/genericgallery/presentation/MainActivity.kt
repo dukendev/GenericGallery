@@ -7,24 +7,34 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.dukendev.genericgallery.data.model.FolderItem
-import com.dukendev.genericgallery.presentation.home.ImagesViewModel
+import com.dukendev.genericgallery.presentation.home.AlbumViewModel
 import com.dukendev.genericgallery.presentation.navigation.MainNavHost
 import com.dukendev.genericgallery.ui.theme.GenericGalleryTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionRequired
 import com.google.accompanist.permissions.PermissionState
+import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.koin.androidx.compose.getViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -46,13 +56,94 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val imagesViewModel by viewModel<ImagesViewModel>()
+        val imagesViewModel by viewModel<AlbumViewModel>()
 //        list = queryMediaStore(contentResolver,1,30) as MutableList<FolderItem>
         setContent {
+
+            val context = LocalContext.current
+
+            val openDialog = remember { mutableStateOf(false) }
+            val permissions = arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+            val launcherMultiplePermissions = rememberLauncherForActivityResult(
+                ActivityResultContracts.RequestMultiplePermissions()
+            ) { permissionsMap ->
+                val areGranted = permissionsMap.values.reduce { acc, next -> acc && next }
+                if (areGranted) {
+                    // Use location
+                    isPermissionGranted.value = true
+                } else {
+                    // Show dialog
+                    openDialog.value = true
+
+                }
+            }
+            LaunchedEffect(true) {
+                checkAndRequestLocationPermissions(
+                    context,
+                    permissions,
+                    launcherMultiplePermissions
+                )
+            }
+            val viewModel = getViewModel<AlbumViewModel>()
+            val permissionState =
+                rememberPermissionState(permission = readImagePermission)
             GenericGalleryTheme {
                 // A surface container using the 'background' color from the theme
                 val navController = rememberNavController()
-                MainNavHost(navController = navController)
+                MainNavHost(
+                    navController = navController,
+                    readImagePermission = readImagePermission,
+                    isPermissionGranted = isPermissionGranted,
+                    permissionState = permissionState,
+                    checkAndRequestLocationPermissions = {
+                        checkAndRequestLocationPermissions(
+                            context,
+                            permissions = permissions,
+                            launcher = launcherMultiplePermissions
+                        )
+                    },
+                    viewModel = viewModel
+                )
+            }
+
+
+
+            if (openDialog.value) {
+                AlertDialog(
+                    onDismissRequest = {
+                        // Dismiss the dialog when the user clicks outside the dialog or on the back
+                        // button. If you want to disable that functionality, simply use an empty
+                        // onDismissRequest.
+                        openDialog.value = false
+                    },
+                    title = {
+                        Text(text = "Title")
+                    },
+                    text = {
+                        Text(text = "Turned on by default")
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                openDialog.value = false
+                            }
+                        ) {
+                            Text("Confirm")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                openDialog.value = false
+                            }
+                        ) {
+                            Text("Dismiss")
+                        }
+                    }
+                )
             }
         }
     }

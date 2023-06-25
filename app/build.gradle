@@ -102,4 +102,6 @@ dependencies {
     implementation "io.insert-koin:koin-androidx-compose:$koin_version"
     // Koin AndroidX Navigation
     implementation "io.insert-koin:koin-androidx-navigation:$koin_version"
+    // Add the Splash Screen API dependency for Android 12 and higher
+    implementation "androidx.core:core-splashscreen:1.0.0"
 }

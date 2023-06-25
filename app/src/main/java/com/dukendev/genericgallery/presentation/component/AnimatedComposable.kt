@@ -14,7 +14,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 
 
-const val DEFAULT_TRANSITION_DURATION = 1000
+const val DEFAULT_TRANSITION_DURATION = 250
 
 fun NavGraphBuilder.composableWithFadeTransition(
     route: String,

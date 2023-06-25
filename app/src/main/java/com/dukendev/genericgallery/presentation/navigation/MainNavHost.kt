@@ -1,163 +1,57 @@
 package com.dukendev.genericgallery.presentation.navigation
 
-import android.Manifest
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.dukendev.genericgallery.presentation.component.composableWithDefaultTransition
-import com.dukendev.genericgallery.presentation.component.composableWithFadeTransition
-import com.dukendev.genericgallery.presentation.splash.SplashScreen
-import com.google.accompanist.permissions.rememberPermissionState
+import com.dukendev.genericgallery.presentation.home.AlbumViewModel
+import com.dukendev.genericgallery.presentation.home.HomeScreen
+import com.dukendev.genericgallery.presentation.image.ImagesScreen
+import com.dukendev.genericgallery.presentation.image.ImagesViewModel
+import com.dukendev.genericgallery.presentation.preview.PreviewScreen
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionState
+import kotlinx.coroutines.flow.MutableStateFlow
+import org.koin.androidx.compose.getViewModel
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun MainNavHost(navController: NavHostController) {
+fun MainNavHost(
+    readImagePermission: String,
+    isPermissionGranted: MutableStateFlow<Boolean>,
+    permissionState: PermissionState,
+    navController: NavHostController,
+    checkAndRequestLocationPermissions: () -> Unit,
+    viewModel: AlbumViewModel
+) {
 
-    NavHost(navController = navController, startDestination = Routes.SplashScreen.value) {
-        composableWithFadeTransition(route = Routes.SplashScreen.value) {
-            SplashScreen()
-        }
+    val imagesViewModel: ImagesViewModel = getViewModel()
+    NavHost(navController = navController, startDestination = Routes.AlbumScreen.value) {
+
         composableWithDefaultTransition(route = Routes.AlbumScreen.value) {
-//                val context = LocalContext.current
-//                val permissionState =
-//                    rememberPermissionState(permission = readImagePermission)
-//
-//                val openDialog = remember { mutableStateOf(false) }
-//                val permissions = arrayOf(
-//                    Manifest.permission.READ_EXTERNAL_STORAGE,
-//                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-//                )
-//                val launcherMultiplePermissions = rememberLauncherForActivityResult(
-//                    ActivityResultContracts.RequestMultiplePermissions()
-//                ) { permissionsMap ->
-//                    val areGranted = permissionsMap.values.reduce { acc, next -> acc && next }
-//                    if (areGranted) {
-//                        // Use location
-//                        isPermissionGranted.value = true
-//                    } else {
-//                        // Show dialog
-//                        openDialog.value = true
-//
-//                    }
-//                }
-//                LaunchedEffect(true) {
-//                    checkAndRequestLocationPermissions(
-//                        context,
-//                        permissions,
-//                        launcherMultiplePermissions
-//                    )
-//                }
-//                val imagesFlow = imagesViewModel.imagesFlow.collectAsLazyPagingItems()
-//
-//                if (openDialog.value) {
-//                    AlertDialog(
-//                        onDismissRequest = {
-//                            // Dismiss the dialog when the user clicks outside the dialog or on the back
-//                            // button. If you want to disable that functionality, simply use an empty
-//                            // onDismissRequest.
-//                            openDialog.value = false
-//                        },
-//                        title = {
-//                            Text(text = "Title")
-//                        },
-//                        text = {
-//                            Text(text = "Turned on by default")
-//                        },
-//                        confirmButton = {
-//                            TextButton(
-//                                onClick = {
-//                                    openDialog.value = false
-//                                }
-//                            ) {
-//                                Text("Confirm")
-//                            }
-//                        },
-//                        dismissButton = {
-//                            TextButton(
-//                                onClick = {
-//                                    openDialog.value = false
-//                                }
-//                            ) {
-//                                Text("Dismiss")
-//                            }
-//                        }
-//                    )
-//                }
-//
-//
-//                val isGranted by isPermissionGranted.collectAsState()
-//                ImagePermissionScope(
-//                    readImagePermission = readImagePermission,
-//                    isPermissionGranted = isGranted,
-//                    permissionState = permissionState,
-//                    requestContent = {
-//                        Box(modifier = Modifier.fillMaxSize()) {
-//                            Text(text = "Permission is required")
-//                            Button(onClick = {
-//                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//                                    permissionState.launchPermissionRequest()
-//                                } else {
-//
-//                                    checkAndRequestLocationPermissions(
-//                                        context,
-//                                        permissions,
-//                                        launcherMultiplePermissions
-//                                    )
-//
-//
-//                                }
-//                            }) {
-//                                Text(text = "Allow")
-//                            }
-//                        }
-//                    }) {
-//                    Surface(
-//                        modifier = Modifier.fillMaxSize(),
-//                        color = MaterialTheme.colorScheme.background
-//                    ) {
-//
-//                        LazyVerticalGrid(
-//                            modifier = Modifier.fillMaxWidth(),
-//                            columns = GridCells.Adaptive(180.dp),
-//                            contentPadding = PaddingValues(MaterialTheme.spacings.small),
-//                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.medium),
-//                            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.medium)
-//                        ) {
-//                            items(imagesFlow.itemCount) {
-//                                imagesFlow[it]?.let { it1 ->
-//                                    FolderPreview(folderItem = it1)
-//                                }
-//                            }
-//                            when (imagesFlow.loadState.append) {
-//                                is LoadState.NotLoading -> Unit
-//                                LoadState.Loading -> {
-//                                    item { CircularProgressIndicator() }
-//                                    Log.d("app", "loading")
-//                                }
-//
-//                                is LoadState.Error -> {
-//                                    item {
-//                                        Text(text = (imagesFlow.loadState.append as LoadState.Error).error.message.toString())
-//                                    }
-//
-//                                    Log.d("app", "error")
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
+            HomeScreen(
+                readImagePermission = readImagePermission,
+                isPermissionGranted = isPermissionGranted,
+                permissionState = permissionState,
+                navController = navController,
+                checkAndRequestLocationPermissions = checkAndRequestLocationPermissions,
+                viewModel = viewModel
+            )
 
         }
         composableWithDefaultTransition(route = Routes.AlbumDetailsScreen.value) {
+            val bucketId = it.arguments?.getString("bucketId")
+            val bucketName = it.arguments?.getString("bucketName")
 
+            ImagesScreen(
+                navController = navController,
+                bucketId = bucketId,
+                bucketName = bucketName,
+                imagesViewModel = imagesViewModel
+            )
         }
         composableWithDefaultTransition(route = Routes.ImagePreviewScreen.value) {
-
+            PreviewScreen(imagesViewModel = imagesViewModel)
         }
     }
 

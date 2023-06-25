@@ -1,6 +1,7 @@
 package com.dukendev.genericgallery.presentation.component
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,12 +26,13 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.dukendev.genericgallery.R
 import com.dukendev.genericgallery.data.model.FolderItem
+import com.dukendev.genericgallery.data.model.ImageItem
 import com.dukendev.genericgallery.ui.theme.custom.extendedShape
 import com.dukendev.genericgallery.ui.theme.custom.spacings
 
 @Composable
-fun FolderPreview(folderItem: FolderItem) {
-    Box(modifier = Modifier.wrapContentSize()) {
+fun FolderPreview(modifier: Modifier, folderItem: FolderItem) {
+    Box(modifier = modifier.wrapContentSize()) {
         Column(
             Modifier
                 .fillMaxSize()
@@ -70,6 +72,55 @@ fun FolderPreview(folderItem: FolderItem) {
                 )
                 Text(
                     text = folderItem.relativePath,
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 2,
+                    overflow = TextOverflow.Visible
+                )
+                Spacer(modifier = Modifier.height(MaterialTheme.spacings.extraSmall))
+            }
+
+        }
+    }
+}
+
+
+@Composable
+fun ImagePreview(modifier: Modifier, imageItem: ImageItem) {
+    Box(modifier = modifier.wrapContentSize()) {
+        Column(
+            Modifier
+                .fillMaxSize(),
+
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Top
+        ) {
+            Image(
+                painter = if (imageItem.path.isNotEmpty()) rememberAsyncImagePainter(model = imageItem.path) else painterResource(
+                    id = R.drawable.folder_empty
+                ),
+                contentDescription = null,
+                modifier = Modifier
+                    .height(120.dp)
+                    .fillMaxWidth(),
+                contentScale = ContentScale.Crop
+            )
+            Column(
+                modifier = Modifier
+                    .height(intrinsicSize = IntrinsicSize.Min)
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(MaterialTheme.spacings.small),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = imageItem.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = "${imageItem.size.div(1024L)} Kb",
                     style = MaterialTheme.typography.labelSmall,
                     maxLines = 2,
                     overflow = TextOverflow.Visible
