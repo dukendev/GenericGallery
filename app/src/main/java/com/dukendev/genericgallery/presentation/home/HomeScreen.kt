@@ -54,9 +54,9 @@ fun HomeScreen(
     viewModel: AlbumViewModel
 ) {
 
-    val albumsFlow = viewModel.albumsFlow.collectAsLazyPagingItems()
+
     val isGranted by isPermissionGranted.collectAsState()
-    val systemUiController = rememberSystemUiController()
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -66,11 +66,8 @@ fun HomeScreen(
                 Text(text = "Photo Albums")
             })
         }) { paddingValues ->
-        LaunchedEffect(true) {
-            systemUiController.setStatusBarColor(Color.Transparent)
-            systemUiController.isSystemBarsVisible = false
-            systemUiController.isNavigationBarVisible = false
-        }
+
+
         ImagePermissionScope(
             modifier = Modifier
                 .fillMaxSize()
@@ -96,6 +93,14 @@ fun HomeScreen(
                     }
                 }
             }) {
+            val systemUiController = rememberSystemUiController()
+            LaunchedEffect(true) {
+                systemUiController.setStatusBarColor(Color.Transparent)
+                systemUiController.isSystemBarsVisible = false
+                systemUiController.isNavigationBarVisible = false
+            }
+            val albumsFlow = viewModel.albumsFlow.collectAsLazyPagingItems()
+
             Surface(
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background

@@ -61,7 +61,6 @@ class MainActivity : ComponentActivity() {
                     isPermissionGranted.value = true
                 } else {
                     // Show dialog
-                    Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
                 }
             }
             LaunchedEffect(true) {
