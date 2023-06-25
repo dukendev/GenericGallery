@@ -17,7 +17,6 @@ import org.koin.androidx.compose.getViewModel
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MainNavHost(
-    readImagePermission: String,
     isPermissionGranted: MutableStateFlow<Boolean>,
     permissionState: PermissionState,
     navController: NavHostController,
@@ -30,7 +29,6 @@ fun MainNavHost(
 
         composableWithDefaultTransition(route = Routes.AlbumScreen.value) {
             HomeScreen(
-                readImagePermission = readImagePermission,
                 isPermissionGranted = isPermissionGranted,
                 permissionState = permissionState,
                 navController = navController,

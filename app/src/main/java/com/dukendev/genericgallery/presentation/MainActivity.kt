@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -12,20 +13,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
-import com.dukendev.genericgallery.data.model.FolderItem
 import com.dukendev.genericgallery.presentation.home.AlbumViewModel
 import com.dukendev.genericgallery.presentation.navigation.MainNavHost
 import com.dukendev.genericgallery.ui.theme.GenericGalleryTheme
@@ -35,7 +28,6 @@ import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.androidx.compose.getViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class MainActivity : ComponentActivity() {
@@ -45,10 +37,6 @@ class MainActivity : ComponentActivity() {
     else
         Manifest.permission.READ_EXTERNAL_STORAGE
 
-
-    private var list: MutableList<FolderItem> = mutableListOf()
-
-
     private val isPermissionGranted: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -56,13 +44,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val imagesViewModel by viewModel<AlbumViewModel>()
-//        list = queryMediaStore(contentResolver,1,30) as MutableList<FolderItem>
         setContent {
 
             val context = LocalContext.current
 
-            val openDialog = remember { mutableStateOf(false) }
             val permissions = arrayOf(
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -76,8 +61,7 @@ class MainActivity : ComponentActivity() {
                     isPermissionGranted.value = true
                 } else {
                     // Show dialog
-                    openDialog.value = true
-
+                    Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
                 }
             }
             LaunchedEffect(true) {
@@ -95,7 +79,6 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 MainNavHost(
                     navController = navController,
-                    readImagePermission = readImagePermission,
                     isPermissionGranted = isPermissionGranted,
                     permissionState = permissionState,
                     checkAndRequestLocationPermissions = {
@@ -108,47 +91,9 @@ class MainActivity : ComponentActivity() {
                     viewModel = viewModel
                 )
             }
-
-
-
-            if (openDialog.value) {
-                AlertDialog(
-                    onDismissRequest = {
-                        // Dismiss the dialog when the user clicks outside the dialog or on the back
-                        // button. If you want to disable that functionality, simply use an empty
-                        // onDismissRequest.
-                        openDialog.value = false
-                    },
-                    title = {
-                        Text(text = "Title")
-                    },
-                    text = {
-                        Text(text = "Turned on by default")
-                    },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                openDialog.value = false
-                            }
-                        ) {
-                            Text("Confirm")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(
-                            onClick = {
-                                openDialog.value = false
-                            }
-                        ) {
-                            Text("Dismiss")
-                        }
-                    }
-                )
-            }
         }
     }
     //end of onCreate
-
 
     private fun checkAndRequestLocationPermissions(
         context: Context,
@@ -170,78 +115,18 @@ class MainActivity : ComponentActivity() {
             launcher.launch(permissions)
         }
     }
-
-//    private fun queryMediaStore(
-//        contentResolver: ContentResolver,
-//        page: Int,
-//        pageSize: Int
-//    ): List<FolderItem> {
-//        val offset = page * pageSize
-//        val limit = "$offset, $pageSize"
-//
-//        val projection = arrayOf(
-//            MediaStore.MediaColumns.DATA,
-//            MediaStore.MediaColumns.DISPLAY_NAME,
-//            MediaStore.MediaColumns.MIME_TYPE,
-//        )
-//        val selection = "${MediaStore.Files.FileColumns.MEDIA_TYPE} = ?"
-//        val selectionArgs = arrayOf(
-//            MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE.toString(),
-//        )
-//        val sortOrder = "${MediaStore.Images.Media.DATE_MODIFIED} DESC"
-//
-//        val cursor = contentResolver.query(
-//            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-//            projection,
-//            null,
-//            null,
-//            null
-//        )
-//
-//        cursor?.use {
-//            val folders = mutableListOf<FolderItem>()
-//            val columnIndexData = it.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
-//            val columnIndexDisplayName = it.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
-//            val columnIndexMimeType = it.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
-//
-//            while (it.moveToNext()) {
-//                val path = it.getString(columnIndexData)
-//                val name = it.getString(columnIndexDisplayName)
-//                val mimeType = it.getString(columnIndexMimeType)
-//
-//                val folderItem = FolderItem(path, name, 0, mimeType)
-//                folders.add(folderItem)
-//            }
-//            Log.d("app",folders.toString())
-//            return folders
-//        }
-//
-//        return emptyList()
-//    }
-
-
 }
-
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun ImagePermissionScope(
-    readImagePermission: String,
+    modifier: Modifier,
     isPermissionGranted: Boolean,
     permissionState: PermissionState,
     requestContent: @Composable () -> Unit,
     body: @Composable () -> Unit,
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = modifier) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             PermissionRequired(
                 permissionState = permissionState,
@@ -265,10 +150,3 @@ fun ImagePermissionScope(
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    GenericGalleryTheme {
-        Greeting("Android")
-    }
-}

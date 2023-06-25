@@ -15,14 +15,14 @@ class ImagesViewModel(private val context: Context) : ViewModel() {
     var imagesFlow: Flow<PagingData<ImageItem>>? = null
         private set
 
-    var selectedImagePath: MutableStateFlow<String> = MutableStateFlow("")
+    var selectedImagePath: MutableStateFlow<ImageItem?> = MutableStateFlow(null)
         private set
 
-    fun updateSelectedPath(path: String?) {
-        if (path == null) {
+    fun updateSelected(image: ImageItem?) {
+        if (image == null) {
             return
         }
-        selectedImagePath.value = path
+        selectedImagePath.value = image
     }
 
     fun letImagesFlow(bucketId: String) {

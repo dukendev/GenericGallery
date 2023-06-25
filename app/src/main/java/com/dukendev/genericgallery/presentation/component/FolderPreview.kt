@@ -3,6 +3,7 @@ package com.dukendev.genericgallery.presentation.component
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -31,7 +33,7 @@ import com.dukendev.genericgallery.ui.theme.custom.extendedShape
 import com.dukendev.genericgallery.ui.theme.custom.spacings
 
 @Composable
-fun FolderPreview(modifier: Modifier, folderItem: FolderItem) {
+fun FolderPreview(modifier: Modifier = Modifier, folderItem: FolderItem, onItemClick: () -> Unit) {
     Box(modifier = modifier.wrapContentSize()) {
         Column(
             Modifier
@@ -41,7 +43,10 @@ fun FolderPreview(modifier: Modifier, folderItem: FolderItem) {
                     width = 2.dp,
                     color = MaterialTheme.colorScheme.scrim,
                     shape = MaterialTheme.shapes.medium
-                ),
+                )
+                .clickable {
+                    onItemClick()
+                },
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top
         ) {
@@ -115,13 +120,13 @@ fun ImagePreview(modifier: Modifier, imageItem: ImageItem) {
             ) {
                 Text(
                     text = imageItem.name,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.bodyLarge.copy(Color.White),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = "${imageItem.size.div(1024L)} Kb",
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelSmall.copy(Color.White),
                     maxLines = 2,
                     overflow = TextOverflow.Visible
                 )
