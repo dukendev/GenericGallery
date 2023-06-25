@@ -2,15 +2,14 @@ package com.dukendev.genericgallery.data.data_source
 
 import android.content.ContentResolver
 import android.content.Context
+import android.database.MergeCursor
 import android.provider.MediaStore
 import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.dukendev.genericgallery.data.model.FolderItem
-import org.koin.dsl.koinApplication
 
 class GalleryPagingSource(private val context: Context) : PagingSource<Int, FolderItem>() {
-
 
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, FolderItem> {
@@ -45,7 +44,8 @@ class GalleryPagingSource(private val context: Context) : PagingSource<Int, Fold
             MediaStore.MediaColumns.DISPLAY_NAME,
             MediaStore.MediaColumns.MIME_TYPE,
             MediaStore.MediaColumns.BUCKET_ID,
-            MediaStore.MediaColumns.BUCKET_DISPLAY_NAME
+            MediaStore.MediaColumns.BUCKET_DISPLAY_NAME,
+            MediaStore.MediaColumns.RELATIVE_PATH
         )
         val selection = "${MediaStore.Files.FileColumns.MEDIA_TYPE} = ?"
         val selectionArgs = arrayOf(
@@ -61,8 +61,17 @@ class GalleryPagingSource(private val context: Context) : PagingSource<Int, Fold
             null
         )
 
-        cursor?.use {
-            val folders = mutableListOf<FolderItem>()
+        val internalCursor = contentResolver.query(
+            MediaStore.Images.Media.INTERNAL_CONTENT_URI,
+            projection,
+            null,
+            null,
+            null
+        )
+        val mergeCursor : MergeCursor = MergeCursor(arrayOf( cursor,internalCursor))
+
+        mergeCursor.use {
+            val folders = mutableSetOf<FolderItem>()
             val columnIndexData = it.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
             val columnIndexDisplayName =
                 it.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
@@ -72,6 +81,8 @@ class GalleryPagingSource(private val context: Context) : PagingSource<Int, Fold
             val columnBucketName =
                 it.getColumnIndexOrThrow(MediaStore.MediaColumns.BUCKET_DISPLAY_NAME)
 
+            val columnRelPath =
+                it.getColumnIndexOrThrow(MediaStore.MediaColumns.RELATIVE_PATH)
             while (it.moveToNext()) {
                 val path = it.getString(columnIndexData)
                 val name = it.getString(columnIndexDisplayName)
@@ -79,14 +90,15 @@ class GalleryPagingSource(private val context: Context) : PagingSource<Int, Fold
                 val bucketId = it.getString(columnBucketId)
                 val bucketName = it.getString(columnBucketName)
 
-                val folderItem = FolderItem(path, name, 0, mimeType, bucketName, bucketId)
+                val relativePath = it.getString(columnRelPath)
+
+                val folderItem = FolderItem(bucketId = bucketId, bucketName = bucketName, relativePath = relativePath, data = path)
                 folders.add(folderItem)
             }
             Log.d("app", folders.toString())
-            return folders.sortedBy {folder -> folder.bucketName }
+            return folders.sortedBy { folder -> folder.bucketName }
         }
 
-        return emptyList()
     }
 
     override fun getRefreshKey(state: PagingState<Int, FolderItem>): Int? {
