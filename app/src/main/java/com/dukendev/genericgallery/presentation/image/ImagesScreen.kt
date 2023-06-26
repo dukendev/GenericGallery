@@ -42,7 +42,6 @@ fun ImagesScreen(
             GGTopBar(title = "$bucketName", hasBack = true, scrollBehavior = scrollBehavior) {
                 navController.navigateUp()
             }
-
         }) { paddingValues ->
         LaunchedEffect(true) {
             systemUiController.setStatusBarColor(Color.Transparent)
