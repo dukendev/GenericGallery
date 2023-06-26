@@ -29,10 +29,10 @@ class LocalMediaUseCase(private val context: Context) {
     }
 
 
-    fun letSearchImagesFlow(name: String): Flow<PagingData<ImageItem>> {
+    fun letSearchImagesFlow(name: String,bucketId: String?): Flow<PagingData<ImageItem>> {
         return Pager(
             config = PagingConfig(pageSize = 30),
-            pagingSourceFactory = { SearingPagingSource(context, name = name) }
+            pagingSourceFactory = { SearingPagingSource(context, name = name, bucketId = bucketId) }
         ).flow
     }
 

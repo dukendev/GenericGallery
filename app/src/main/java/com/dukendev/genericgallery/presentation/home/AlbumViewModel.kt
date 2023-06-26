@@ -17,8 +17,8 @@ class AlbumViewModel(private val mediaUseCase: LocalMediaUseCase) : ViewModel() 
     fun getAlbums() = mediaUseCase.letAlbumsFlow().cachedIn(viewModelScope)
 
 
-    fun getSearchImages(name: String) {
-        searchImages = mediaUseCase.letSearchImagesFlow(name = name)
+    fun getSearchImages(name: String,bucketId : String?) {
+        searchImages = mediaUseCase.letSearchImagesFlow(name = name, bucketId = bucketId)
     }
 
 }

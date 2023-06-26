@@ -3,7 +3,10 @@ package com.dukendev.genericgallery.presentation.component
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandIn
 import androidx.compose.animation.shrinkOut
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
@@ -20,6 +23,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,11 +51,18 @@ fun GGTopBar(
         }
     }, actions = {
         if (hasSearch) {
-            Row {
+            Row(
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 AnimatedVisibility(visible = isSearching) {
-                    TextField(value = query, onValueChange = {
-                        onSearchUpdated(it)
-                    })
+                    TextField(
+                        value = query, onValueChange = {
+                            onSearchUpdated(it)
+                        }, maxLines = 1, modifier = Modifier
+                            .width(240.dp)
+                            .wrapContentHeight()
+                    )
                 }
 
                 IconButton(onClick = {

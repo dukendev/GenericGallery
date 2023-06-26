@@ -86,7 +86,7 @@ fun HomeScreen(
                 query = searchQuery,
                 onSearchUpdated = {
                     searchQuery = it
-                    viewModel.getSearchImages(name = searchQuery)
+                    viewModel.getSearchImages(name = searchQuery, null)
                 })
         }) { paddingValues ->
         ImagePermissionScope(

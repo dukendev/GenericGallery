@@ -1,5 +1,6 @@
 package com.dukendev.genericgallery.presentation.image
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,7 +12,12 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -30,6 +36,9 @@ fun ImagesScreen(
     imagesViewModel: ImagesViewModel
 ) {
 
+    var searchQuery by remember {
+        mutableStateOf("")
+    }
     val scrollBehavior =
         TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     val systemUiController = rememberSystemUiController()
@@ -39,30 +48,62 @@ fun ImagesScreen(
             .background(MaterialTheme.colorScheme.background)
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            GGTopBar(title = "$bucketName", hasBack = true, scrollBehavior = scrollBehavior) {
-                navController.navigateUp()
-            }
-        }) { paddingValues ->
+            GGTopBar(
+                title = "$bucketName",
+                hasBack = true,
+                scrollBehavior = scrollBehavior,
+                hasSearch = true,
+                query = searchQuery,
+                onNavigate = { navController.navigateUp() },
+                onSearchUpdated = {
+                    searchQuery = it
+                    imagesViewModel.getSearchImages(name = searchQuery, bucketId = bucketId)
+                }
+            )
+        }
+    ) { paddingValues ->
         LaunchedEffect(true) {
             systemUiController.setStatusBarColor(Color.Transparent)
             systemUiController.isSystemBarsVisible = false
             systemUiController.isNavigationBarVisible = false
+        }
+
+        val searchImages by rememberUpdatedState {
+            imagesViewModel.searchImages
+        }
+        val searchPages = remember(searchQuery) {
+            derivedStateOf {
+                searchImages
+            }
         }
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            val images = remember {
-                imagesViewModel.getImagesForBucket(bucketId ?: "")
-            }.collectAsLazyPagingItems()
+            AnimatedContent(targetState = searchQuery.isNotBlank()) { searching ->
+                if (searching) {
 
-            ImagesGrid(images = images, onImageSelected = {
-                imagesViewModel.updateSelected(it)
-                navController.navigate(
-                    Routes.ImagePreviewScreen.value
-                )
-            })
+                    ImagesGrid(
+                        images = searchPages.value.invoke().collectAsLazyPagingItems(),
+                        onImageSelected = {
+                            imagesViewModel.updateSelected(it)
+                            navController.navigate(Routes.ImagePreviewScreen.value)
+                        })
+                } else {
+                    val images = remember {
+                        imagesViewModel.getImagesForBucket(bucketId ?: "")
+                    }.collectAsLazyPagingItems()
+
+                    ImagesGrid(images = images, onImageSelected = {
+                        imagesViewModel.updateSelected(it)
+                        navController.navigate(
+                            Routes.ImagePreviewScreen.value
+                        )
+                    })
+                }
+            }
+
 
         }
     }

@@ -8,7 +8,11 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.dukendev.genericgallery.data.model.ImageItem
 
-class SearingPagingSource(private val context: Context, private val name: String) :
+class SearingPagingSource(
+    private val context: Context,
+    private val name: String,
+    private val bucketId: String?
+) :
     PagingSource<Int, ImageItem>() {
 
 
@@ -17,7 +21,7 @@ class SearingPagingSource(private val context: Context, private val name: String
             val currentPage = params.key ?: 0
             val pageSize = params.loadSize
 
-            val folders = queryMediaStore(context.contentResolver, currentPage, pageSize)
+            val folders = queryMediaStore(context.contentResolver)
             val prevKey = if (currentPage > 0) currentPage - 1 else null
             val nextKey = if (folders.size == pageSize) currentPage + 1 else null
 
@@ -35,11 +39,7 @@ class SearingPagingSource(private val context: Context, private val name: String
 
     private fun queryMediaStore(
         contentResolver: ContentResolver,
-        page: Int,
-        pageSize: Int
     ): List<ImageItem> {
-        val offset = page * pageSize
-        val limit = "$offset, $pageSize"
 
         val projection = arrayOf(
             MediaStore.MediaColumns.DATA,
@@ -50,17 +50,17 @@ class SearingPagingSource(private val context: Context, private val name: String
             MediaStore.MediaColumns.RELATIVE_PATH,
             MediaStore.MediaColumns.SIZE
         )
-        val selection = "${MediaStore.MediaColumns.DISPLAY_NAME} like?"
+        val selection = "${MediaStore.MediaColumns.BUCKET_ID} like?"
         val selectionArgs = arrayOf(
-            name
+            bucketId
         )
         val sortOrder = "${MediaStore.Images.Media.DATE_MODIFIED} DESC"
 
         val cursor = contentResolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             projection,
-            null,
-            null,
+            if (bucketId.isNullOrEmpty()) null else selection,
+            if (bucketId.isNullOrEmpty()) null else selectionArgs,
             sortOrder
         )
 
