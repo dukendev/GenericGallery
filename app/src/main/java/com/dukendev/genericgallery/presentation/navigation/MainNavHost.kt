@@ -49,7 +49,7 @@ fun MainNavHost(
             )
         }
         composableWithDefaultTransition(route = Routes.ImagePreviewScreen.value) {
-            PreviewScreen(imagesViewModel = imagesViewModel)
+            PreviewScreen(navController = navController, imagesViewModel = imagesViewModel)
         }
     }
 
