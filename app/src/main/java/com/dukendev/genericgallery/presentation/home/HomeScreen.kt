@@ -20,7 +20,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,14 +29,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.dukendev.genericgallery.R
-import com.dukendev.genericgallery.presentation.ImagePermissionScope
 import com.dukendev.genericgallery.presentation.component.FolderPreview
+import com.dukendev.genericgallery.presentation.component.GGTopBar
+import com.dukendev.genericgallery.presentation.component.ImagePermissionScope
 import com.dukendev.genericgallery.presentation.navigation.Routes
 import com.dukendev.genericgallery.presentation.navigation.Routes.Companion.navigateWithArgs
 import com.dukendev.genericgallery.ui.theme.custom.spacings
@@ -55,19 +58,18 @@ fun HomeScreen(
 ) {
 
 
+    val scrollBehavior =
+        TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     val isGranted by isPermissionGranted.collectAsState()
 
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background)
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            TopAppBar(title = {
-                Text(text = "Photo Albums")
-            })
+            GGTopBar(title = "Photo Albums", scrollBehavior = scrollBehavior)
         }) { paddingValues ->
-
-
         ImagePermissionScope(
             modifier = Modifier
                 .fillMaxSize()

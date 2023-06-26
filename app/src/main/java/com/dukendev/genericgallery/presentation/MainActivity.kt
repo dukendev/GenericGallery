@@ -5,13 +5,11 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,7 +37,6 @@ class MainActivity : ComponentActivity() {
 
     private val isPermissionGranted: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -116,36 +113,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalPermissionsApi::class)
-@Composable
-fun ImagePermissionScope(
-    modifier: Modifier,
-    isPermissionGranted: Boolean,
-    permissionState: PermissionState,
-    requestContent: @Composable () -> Unit,
-    body: @Composable () -> Unit,
-) {
-    Box(modifier = modifier) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            PermissionRequired(
-                permissionState = permissionState,
-                permissionNotGrantedContent = {
-                    requestContent()
-                },
-                permissionNotAvailableContent = {
-                    requestContent()
-                }) {
-                body()
-            }
-        } else {
-            if (isPermissionGranted) {
-                body()
-            } else {
-                requestContent()
-            }
 
-        }
-    }
-}
+
 
 

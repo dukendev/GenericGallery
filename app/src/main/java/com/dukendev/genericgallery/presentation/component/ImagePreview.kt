@@ -1,8 +1,8 @@
 package com.dukendev.genericgallery.presentation.component
 
+
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,63 +18,54 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.dukendev.genericgallery.R
-import com.dukendev.genericgallery.data.model.FolderItem
-import com.dukendev.genericgallery.ui.theme.custom.extendedShape
+import com.dukendev.genericgallery.data.model.ImageItem
 import com.dukendev.genericgallery.ui.theme.custom.spacings
 
 @Composable
-fun FolderPreview(modifier: Modifier = Modifier, folderItem: FolderItem, onItemClick: () -> Unit) {
+fun ImagePreview(modifier: Modifier, imageItem: ImageItem) {
     Box(modifier = modifier.wrapContentSize()) {
         Column(
             Modifier
-                .fillMaxSize()
-                .clip(MaterialTheme.shapes.medium)
-                .border(
-                    width = 2.dp,
-                    color = MaterialTheme.colorScheme.scrim,
-                    shape = MaterialTheme.shapes.medium
-                )
-                .clickable {
-                    onItemClick()
-                },
+                .fillMaxSize(),
+
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top
         ) {
             Image(
-                painter = if (folderItem.data.isNotEmpty()) rememberAsyncImagePainter(model = folderItem.data) else painterResource(
+                painter = if (imageItem.path.isNotEmpty()) rememberAsyncImagePainter(model = imageItem.path) else painterResource(
                     id = R.drawable.folder_empty
                 ),
                 contentDescription = null,
                 modifier = Modifier
                     .height(120.dp)
-                    .fillMaxWidth()
-                    .clip(MaterialTheme.extendedShape.topEndRoundedCorner),
+                    .fillMaxWidth(),
                 contentScale = ContentScale.Crop
             )
             Column(
                 modifier = Modifier
                     .height(intrinsicSize = IntrinsicSize.Min)
                     .fillMaxWidth()
-                    .padding(MaterialTheme.spacings.medium),
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(MaterialTheme.spacings.small),
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = folderItem.bucketName,
-                    style = MaterialTheme.typography.bodyLarge,
+                    text = imageItem.name,
+                    style = MaterialTheme.typography.bodyLarge.copy(Color.White),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = folderItem.relativePath,
-                    style = MaterialTheme.typography.labelSmall,
+                    text = "${imageItem.size.div(1024L)} Kb",
+                    style = MaterialTheme.typography.labelSmall.copy(Color.White),
                     maxLines = 2,
                     overflow = TextOverflow.Visible
                 )
@@ -84,5 +75,3 @@ fun FolderPreview(modifier: Modifier = Modifier, folderItem: FolderItem, onItemC
         }
     }
 }
-
-
