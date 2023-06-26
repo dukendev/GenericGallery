@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,7 +43,12 @@ fun GGTopBar(
         mutableStateOf(false)
     }
     MediumTopAppBar(title = {
-        Text(text = title, style = MaterialTheme.typography.headlineMedium)
+        Text(
+            text = title,
+            style = MaterialTheme.typography.headlineMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }, navigationIcon = {
         AnimatedVisibility(hasBack, enter = expandIn(), exit = shrinkOut()) {
             IconButton(onClick = { onNavigate() }) {
@@ -60,7 +66,7 @@ fun GGTopBar(
                         value = query, onValueChange = {
                             onSearchUpdated(it)
                         }, maxLines = 1, modifier = Modifier
-                            .width(240.dp)
+                            .width(180.dp)
                             .wrapContentHeight()
                     )
                 }
