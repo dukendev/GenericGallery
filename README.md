@@ -6,7 +6,7 @@ Check out the Demo below :
 [![GenericGallery](https://img.shields.io/badge/GenericGallery🌈-APK-black.svg?style=for-the-badge&logo=android)](https://github.com/dukendev/GenericGallery/releases/download/v0.1.0/app-debug.apk)
 
 ### Preview
-![demo]([ScreenShots/genericGalleryDemo.gif])
+![demo](ScreenShots/genericGalleryDemo.gif)
 
 ## Tech Stack
 
