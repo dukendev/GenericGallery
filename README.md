@@ -27,7 +27,6 @@ The following is the tech stack used in the app:
 - AndroidX Core Splash Screen API
 > An API introduced in Android 12 and higher that allows for the creation of splash screens. It provides a seamless and customizable transition from app launch to the main activity.
 
-Please refer to the official documentation of each library for detailed information and usage guidelines.
 
 
 
