@@ -2,6 +2,7 @@ package com.dukendev.genericgallery.presentation.home
 
 import android.os.Build
 import android.util.Log
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -26,7 +27,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -62,14 +65,23 @@ fun HomeScreen(
     val scrollBehavior =
         TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     val isGranted by isPermissionGranted.collectAsState()
-
+    var searchQuery by remember {
+        mutableStateOf("")
+    }
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            GGTopBar(title = "Photo Albums", scrollBehavior = scrollBehavior)
+            GGTopBar(
+                title = "Photo Albums",
+                scrollBehavior = scrollBehavior,
+                hasSearch = true,
+                query = searchQuery,
+                onSearchUpdated = {
+                    searchQuery = it
+                })
         }) { paddingValues ->
         ImagePermissionScope(
             modifier = Modifier
@@ -110,63 +122,72 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                if (albumsFlow.itemCount == 0) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.folder_empty),
-                                contentDescription = null
-                            )
-                            Text(text = "No Folders Found")
+                AnimatedContent(targetState = searchQuery.isNotBlank()) { searching ->
+                    if (searching) {
+                        Column(Modifier.fillMaxSize()) {
+                            Text(text = "searching for $searchQuery")
                         }
-                    }
-                } else {
-                    LazyVerticalGrid(
-                        modifier = Modifier.fillMaxWidth(),
-                        columns = GridCells.Adaptive(180.dp),
-                        contentPadding = PaddingValues(MaterialTheme.spacings.small),
-                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.medium),
-                        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.medium)
-                    ) {
-                        items(albumsFlow.itemCount) { index ->
-                            albumsFlow[index]?.let { folder ->
-                                FolderPreview(folderItem = folder, onItemClick = {
-                                    navController.navigate(
-                                        Routes.AlbumDetailsScreen.navigateWithArgs(
-                                            bucketId = albumsFlow[index]?.bucketId ?: "",
-                                            albumsFlow[index]?.bucketName ?: ""
-                                        )
+                    } else {
+                        if (albumsFlow.itemCount == 0) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    modifier = Modifier.fillMaxSize(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.folder_empty),
+                                        contentDescription = null
                                     )
-                                })
-                            }
-                        }
-                        when (albumsFlow.loadState.append) {
-                            is LoadState.NotLoading -> Unit
-                            LoadState.Loading -> {
-                                item { CircularProgressIndicator() }
-                                Log.d("app", "loading")
-                            }
-
-                            is LoadState.Error -> {
-                                item {
-                                    Text(text = (albumsFlow.loadState.append as LoadState.Error).error.message.toString())
+                                    Text(text = "No Folders Found")
                                 }
-                                Log.d("app", "error")
                             }
+                        } else {
+                            LazyVerticalGrid(
+                                modifier = Modifier.fillMaxWidth(),
+                                columns = GridCells.Adaptive(180.dp),
+                                contentPadding = PaddingValues(MaterialTheme.spacings.small),
+                                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.medium),
+                                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.medium)
+                            ) {
+                                items(albumsFlow.itemCount) { index ->
+                                    albumsFlow[index]?.let { folder ->
+                                        FolderPreview(folderItem = folder, onItemClick = {
+                                            navController.navigate(
+                                                Routes.AlbumDetailsScreen.navigateWithArgs(
+                                                    bucketId = albumsFlow[index]?.bucketId ?: "",
+                                                    albumsFlow[index]?.bucketName ?: ""
+                                                )
+                                            )
+                                        })
+                                    }
+                                }
+                                when (albumsFlow.loadState.append) {
+                                    is LoadState.NotLoading -> Unit
+                                    LoadState.Loading -> {
+                                        item { CircularProgressIndicator() }
+                                        Log.d("app", "loading")
+                                    }
 
-                            else -> {
-                                item { CircularProgressIndicator() }
+                                    is LoadState.Error -> {
+                                        item {
+                                            Text(text = (albumsFlow.loadState.append as LoadState.Error).error.message.toString())
+                                        }
+                                        Log.d("app", "error")
+                                    }
+
+                                    else -> {
+                                        item { CircularProgressIndicator() }
+                                    }
+                                }
                             }
                         }
                     }
                 }
+
 
             }
         }
