@@ -26,9 +26,11 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,9 +42,11 @@ import androidx.navigation.NavHostController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.dukendev.genericgallery.R
+import com.dukendev.genericgallery.data.model.ImageItem
 import com.dukendev.genericgallery.presentation.component.FolderPreview
 import com.dukendev.genericgallery.presentation.component.GGTopBar
 import com.dukendev.genericgallery.presentation.component.ImagePermissionScope
+import com.dukendev.genericgallery.presentation.image.ImagesGrid
 import com.dukendev.genericgallery.presentation.navigation.Routes
 import com.dukendev.genericgallery.presentation.navigation.Routes.Companion.navigateWithArgs
 import com.dukendev.genericgallery.ui.theme.custom.spacings
@@ -54,11 +58,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    viewModel: AlbumViewModel,
     isPermissionGranted: MutableStateFlow<Boolean>,
     permissionState: PermissionState,
     navController: NavHostController,
     checkAndRequestLocationPermissions: () -> Unit,
-    viewModel: AlbumViewModel
+    onSearched: (ImageItem) -> Unit
 ) {
 
 
@@ -81,6 +86,7 @@ fun HomeScreen(
                 query = searchQuery,
                 onSearchUpdated = {
                     searchQuery = it
+                    viewModel.getSearchImages(name = searchQuery)
                 })
         }) { paddingValues ->
         ImagePermissionScope(
@@ -118,15 +124,26 @@ fun HomeScreen(
                 viewModel.getAlbums()
             }.collectAsLazyPagingItems()
 
+            val searchImages by rememberUpdatedState {
+                viewModel.searchImages
+            }
+            val images = remember(searchQuery) {
+                derivedStateOf {
+                    searchImages
+                }
+            }
             Surface(
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
                 AnimatedContent(targetState = searchQuery.isNotBlank()) { searching ->
                     if (searching) {
-                        Column(Modifier.fillMaxSize()) {
-                            Text(text = "searching for $searchQuery")
-                        }
+                        ImagesGrid(
+                            images = images.value.invoke().collectAsLazyPagingItems(),
+                            onImageSelected = {
+                                onSearched(it)
+                                navController.navigate(Routes.ImagePreviewScreen.value)
+                            })
                     } else {
                         if (albumsFlow.itemCount == 0) {
                             Box(

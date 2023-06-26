@@ -29,12 +29,14 @@ fun MainNavHost(
 
         composableWithDefaultTransition(route = Routes.AlbumScreen.value) {
             HomeScreen(
-                isPermissionGranted = isPermissionGranted,
-                permissionState = permissionState,
+                viewModel = viewModel,
                 navController = navController,
-                checkAndRequestLocationPermissions = checkAndRequestLocationPermissions,
-                viewModel = viewModel
-            )
+                permissionState = permissionState,
+                isPermissionGranted = isPermissionGranted,
+                checkAndRequestLocationPermissions = checkAndRequestLocationPermissions
+            ) {
+                imagesViewModel.updateSelected(it)
+            }
 
         }
         composableWithDefaultTransition(route = Routes.AlbumDetailsScreen.value) {
