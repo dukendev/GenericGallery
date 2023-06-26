@@ -111,7 +111,7 @@ fun PreviewScreen(navController: NavController, imagesViewModel: ImagesViewModel
                     )
 
                     Text(
-                        text = "size : ${image?.size?.div(1024L)}",
+                        text = "size : ${image?.size?.div(1024L)} Kb",
                         style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onBackground),
                         modifier = Modifier.padding(horizontal = MaterialTheme.spacings.small)
                     )
