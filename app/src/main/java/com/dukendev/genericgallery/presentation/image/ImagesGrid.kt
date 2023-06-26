@@ -40,10 +40,8 @@ fun ImagesGrid(images: LazyPagingItems<ImageItem>, onImageSelected: (ImageItem) 
                 item {
                     Text(text = (images.loadState.append as LoadState.Error).error.message.toString())
                 }
-
                 Log.d("app", "error")
             }
-
             else -> {}
         }
     }

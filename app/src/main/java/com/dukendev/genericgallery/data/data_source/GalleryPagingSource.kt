@@ -16,7 +16,7 @@ class GalleryPagingSource(private val context: Context) : PagingSource<Int, Fold
             val currentPage = params.key ?: 0
             val pageSize = params.loadSize
 
-            val folders = queryMediaStore(context.contentResolver, currentPage, pageSize)
+            val folders = queryMediaStore(context.contentResolver)
             val prevKey = if (currentPage > 0) currentPage - 1 else null
             val nextKey = if (folders.size == pageSize) currentPage + 1 else null
 
@@ -32,11 +32,7 @@ class GalleryPagingSource(private val context: Context) : PagingSource<Int, Fold
 
     private fun queryMediaStore(
         contentResolver: ContentResolver,
-        page: Int,
-        pageSize: Int
     ): List<FolderItem> {
-        val offset = page * pageSize
-        val limit = "$offset, $pageSize"
 
         val projection = arrayOf(
             MediaStore.MediaColumns.DATA,
@@ -46,12 +42,6 @@ class GalleryPagingSource(private val context: Context) : PagingSource<Int, Fold
             MediaStore.MediaColumns.BUCKET_DISPLAY_NAME,
             MediaStore.MediaColumns.RELATIVE_PATH
         )
-        val selection = "${MediaStore.Files.FileColumns.MEDIA_TYPE} = ?"
-        val selectionArgs = arrayOf(
-            MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE.toString(),
-        )
-        val sortOrder = "${MediaStore.Images.Media.DATE_MODIFIED} DESC"
-
         val cursor = contentResolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             projection,

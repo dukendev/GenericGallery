@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.navigation.NavController
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.dukendev.genericgallery.presentation.component.EmptyScreenContent
 import com.dukendev.genericgallery.presentation.component.GGTopBar
 import com.dukendev.genericgallery.presentation.navigation.Routes
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -83,7 +84,6 @@ fun ImagesScreen(
         ) {
             AnimatedContent(targetState = searchQuery.isNotBlank()) { searching ->
                 if (searching) {
-
                     ImagesGrid(
                         images = searchPages.value.invoke().collectAsLazyPagingItems(),
                         onImageSelected = {
@@ -94,17 +94,18 @@ fun ImagesScreen(
                     val images = remember {
                         imagesViewModel.getImagesForBucket(bucketId ?: "")
                     }.collectAsLazyPagingItems()
-
-                    ImagesGrid(images = images, onImageSelected = {
-                        imagesViewModel.updateSelected(it)
-                        navController.navigate(
-                            Routes.ImagePreviewScreen.value
-                        )
-                    })
+                    if (images.itemCount == 0) {
+                        EmptyScreenContent()
+                    } else {
+                        ImagesGrid(images = images, onImageSelected = {
+                            imagesViewModel.updateSelected(it)
+                            navController.navigate(
+                                Routes.ImagePreviewScreen.value
+                            )
+                        })
+                    }
                 }
             }
-
-
         }
     }
 }

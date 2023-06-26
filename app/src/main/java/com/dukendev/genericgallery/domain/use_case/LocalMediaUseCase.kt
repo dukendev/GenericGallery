@@ -12,8 +12,6 @@ import com.dukendev.genericgallery.data.model.ImageItem
 import kotlinx.coroutines.flow.Flow
 
 class LocalMediaUseCase(private val context: Context) {
-
-
     fun letImagesFlow(bucketId: String): Flow<PagingData<ImageItem>> {
         return Pager(
             config = PagingConfig(pageSize = 30),
@@ -28,8 +26,7 @@ class LocalMediaUseCase(private val context: Context) {
         ).flow
     }
 
-
-    fun letSearchImagesFlow(name: String,bucketId: String?): Flow<PagingData<ImageItem>> {
+    fun letSearchImagesFlow(name: String, bucketId: String?): Flow<PagingData<ImageItem>> {
         return Pager(
             config = PagingConfig(pageSize = 30),
             pagingSourceFactory = { SearingPagingSource(context, name = name, bucketId = bucketId) }

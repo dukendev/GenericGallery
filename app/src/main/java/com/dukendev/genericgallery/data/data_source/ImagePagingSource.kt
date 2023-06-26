@@ -17,7 +17,7 @@ class ImagePagingSource(private val context: Context, private val bucketId: Stri
             val currentPage = params.key ?: 0
             val pageSize = params.loadSize
 
-            val folders = queryMediaStore(context.contentResolver, currentPage, pageSize)
+            val folders = queryMediaStore(context.contentResolver)
             val prevKey = if (currentPage > 0) currentPage - 1 else null
             val nextKey = if (folders.size == pageSize) currentPage + 1 else null
 
@@ -33,11 +33,7 @@ class ImagePagingSource(private val context: Context, private val bucketId: Stri
 
     private fun queryMediaStore(
         contentResolver: ContentResolver,
-        page: Int,
-        pageSize: Int
     ): List<ImageItem> {
-        val offset = page * pageSize
-        val limit = "$offset, $pageSize"
 
         val projection = arrayOf(
             MediaStore.MediaColumns.DATA,
@@ -61,9 +57,6 @@ class ImagePagingSource(private val context: Context, private val bucketId: Stri
             selectionArgs,
             sortOrder
         )
-
-
-
 
         cursor.use {
             val folders = mutableSetOf<ImageItem>()

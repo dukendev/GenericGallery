@@ -3,18 +3,14 @@ package com.dukendev.genericgallery.presentation.home
 import android.os.Build
 import android.util.Log
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -32,20 +28,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.dukendev.genericgallery.R
 import com.dukendev.genericgallery.data.model.ImageItem
+import com.dukendev.genericgallery.presentation.component.EmptyScreenContent
 import com.dukendev.genericgallery.presentation.component.FolderPreview
 import com.dukendev.genericgallery.presentation.component.GGTopBar
 import com.dukendev.genericgallery.presentation.component.ImagePermissionScope
+import com.dukendev.genericgallery.presentation.component.RequestPermissionContent
 import com.dukendev.genericgallery.presentation.image.ImagesGrid
 import com.dukendev.genericgallery.presentation.navigation.Routes
 import com.dukendev.genericgallery.presentation.navigation.Routes.Companion.navigateWithArgs
@@ -65,7 +60,6 @@ fun HomeScreen(
     checkAndRequestLocationPermissions: () -> Unit,
     onSearched: (ImageItem) -> Unit
 ) {
-
 
     val scrollBehavior =
         TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
@@ -96,21 +90,11 @@ fun HomeScreen(
             isPermissionGranted = isGranted,
             permissionState = permissionState,
             requestContent = {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(text = "Permission is required")
-                    Button(onClick = {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            permissionState.launchPermissionRequest()
-                        } else {
-                            checkAndRequestLocationPermissions()
-                        }
-                    }) {
-                        Text(text = "Allow")
+                RequestPermissionContent {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        permissionState.launchPermissionRequest()
+                    } else {
+                        checkAndRequestLocationPermissions()
                     }
                 }
             }) {
@@ -146,22 +130,7 @@ fun HomeScreen(
                             })
                     } else {
                         if (albumsFlow.itemCount == 0) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Column(
-                                    modifier = Modifier.fillMaxSize(),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    Image(
-                                        painter = painterResource(id = R.drawable.folder_empty),
-                                        contentDescription = null
-                                    )
-                                    Text(text = "No Folders Found")
-                                }
-                            }
+                            EmptyScreenContent()
                         } else {
                             LazyVerticalGrid(
                                 modifier = Modifier.fillMaxWidth(),

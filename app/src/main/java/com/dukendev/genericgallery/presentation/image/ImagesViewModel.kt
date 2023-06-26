@@ -9,8 +9,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 
 class ImagesViewModel(private val mediaUseCase: LocalMediaUseCase) : ViewModel() {
-
-
     var searchImages: Flow<PagingData<ImageItem>> = flowOf()
         private set
     var selectedImagePath: MutableStateFlow<ImageItem?> = MutableStateFlow(null)

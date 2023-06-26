@@ -10,10 +10,7 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Box
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
@@ -21,8 +18,6 @@ import com.dukendev.genericgallery.presentation.home.AlbumViewModel
 import com.dukendev.genericgallery.presentation.navigation.MainNavHost
 import com.dukendev.genericgallery.ui.theme.GenericGalleryTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionRequired
-import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.androidx.compose.getViewModel
@@ -42,9 +37,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-
             val context = LocalContext.current
-
             val permissions = arrayOf(
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -54,10 +47,9 @@ class MainActivity : ComponentActivity() {
             ) { permissionsMap ->
                 val areGranted = permissionsMap.values.reduce { acc, next -> acc && next }
                 if (areGranted) {
-                    // Use location
                     isPermissionGranted.value = true
                 } else {
-                    // Show dialog
+                    //
                 }
             }
             LaunchedEffect(true) {
@@ -104,10 +96,8 @@ class MainActivity : ComponentActivity() {
                 ) == PackageManager.PERMISSION_GRANTED
             }
         ) {
-            // Use location because permissions are already granted
             isPermissionGranted.value = true
         } else {
-            // Request permissions
             launcher.launch(permissions)
         }
     }

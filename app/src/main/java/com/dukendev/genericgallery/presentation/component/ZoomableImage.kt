@@ -26,11 +26,11 @@ fun ZoomableImage(painter: Painter) {
     val panYState = remember { mutableFloatStateOf(0f) }
     Box(
         modifier = Modifier
-            .clip(RectangleShape) // Clip the box content
-            .fillMaxSize() // Give the size you want...
+            .clip(RectangleShape)
+            .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .pointerInput(Unit) {
-                detectTransformGestures { centroid, pan, zoom, rotation ->
+                detectTransformGestures { _, pan, zoom, rotation ->
                     scale.floatValue *= zoom
                     rotationState.floatValue += rotation
                     panXState.floatValue += pan.x
@@ -41,7 +41,7 @@ fun ZoomableImage(painter: Painter) {
         Image(
             contentScale = ContentScale.Fit,
             modifier = Modifier
-                .align(Alignment.Center) // keep the image centralized into the Box
+                .align(Alignment.Center)
                 .graphicsLayer(
                     // adding some zoom limits (min 50%, max 200%)
                     scaleX = maxOf(.5f, minOf(3f, scale.floatValue)),
