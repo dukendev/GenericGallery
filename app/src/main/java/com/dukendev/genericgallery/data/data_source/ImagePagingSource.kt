@@ -2,7 +2,6 @@ package com.dukendev.genericgallery.data.data_source
 
 import android.content.ContentResolver
 import android.content.Context
-import android.database.MergeCursor
 import android.provider.MediaStore
 import android.util.Log
 import androidx.paging.PagingSource
@@ -63,41 +62,37 @@ class ImagePagingSource(private val context: Context, private val bucketId: Stri
             sortOrder
         )
 
-        val internalCursor = contentResolver.query(
-            MediaStore.Images.Media.INTERNAL_CONTENT_URI,
-            projection,
-            null,
-            null,
-            null
-        )
-        val mergeCursor: MergeCursor = MergeCursor(arrayOf(cursor, internalCursor))
 
-        mergeCursor.use {
+
+
+        cursor.use {
             val folders = mutableSetOf<ImageItem>()
-            val columnIndexData = it.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
+            val columnIndexData = it?.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
             val columnIndexDisplayName =
-                it.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
-            val columnIndexMimeType = it.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
-            val columnBucketId = it.getColumnIndexOrThrow(MediaStore.MediaColumns.BUCKET_ID)
+                it?.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
+            val columnIndexMimeType = it?.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
+            val columnBucketId = it?.getColumnIndexOrThrow(MediaStore.MediaColumns.BUCKET_ID)
             val columnBucketName =
-                it.getColumnIndexOrThrow(MediaStore.MediaColumns.BUCKET_DISPLAY_NAME)
-            val columnSize = it.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE)
-            while (it.moveToNext()) {
-                val path = it.getString(columnIndexData)
-                val name = it.getString(columnIndexDisplayName)
-                val mimeType = it.getString(columnIndexMimeType)
-                val bucketId = it.getString(columnBucketId)
-                val bucketName = it.getString(columnBucketName)
-                val size = it.getInt(columnSize)
-                val folderItem = ImageItem(
-                    bucketId = bucketId,
-                    bucketName = bucketName,
-                    path = path,
-                    name = name,
-                    size = size,
-                    mimeType = mimeType
-                )
-                folders.add(folderItem)
+                it?.getColumnIndexOrThrow(MediaStore.MediaColumns.BUCKET_DISPLAY_NAME)
+            val columnSize = it?.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE)
+            if (it != null) {
+                while (it.moveToNext()) {
+                    val path = columnIndexData?.let { it1 -> it.getString(it1) }
+                    val name = columnIndexDisplayName?.let { it1 -> it.getString(it1) }
+                    val mimeType = columnIndexMimeType?.let { it1 -> it.getString(it1) }
+                    val bucketId = columnBucketId?.let { it1 -> it.getString(it1) }
+                    val bucketName = columnBucketName?.let { it1 -> it.getString(it1) }
+                    val size = columnSize?.let { it1 -> it.getInt(it1) }
+                    val folderItem = ImageItem(
+                        bucketId = bucketId,
+                        bucketName = bucketName,
+                        path = path,
+                        name = name,
+                        size = size ?: 0,
+                        mimeType = mimeType
+                    )
+                    folders.add(folderItem)
+                }
             }
             Log.d("app", folders.toString())
             return folders.sortedBy { folder -> folder.bucketName }

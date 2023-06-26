@@ -17,14 +17,5 @@ sealed class Routes(val value: String) {
                 oldValue = "{bucketName}", newValue = bucketName
             )
         }
-
-
-        fun ImagePreviewScreen.navigateWithArgs(
-            path: String
-        ): String {
-            return this.value.replace(
-                oldValue = "{path}", newValue = path
-            )
-        }
     }
 }

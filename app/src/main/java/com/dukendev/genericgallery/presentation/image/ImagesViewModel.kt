@@ -1,19 +1,12 @@
 package com.dukendev.genericgallery.presentation.image
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingData
-import com.dukendev.genericgallery.data.data_source.ImagePagingSource
 import com.dukendev.genericgallery.data.model.ImageItem
-import kotlinx.coroutines.flow.Flow
+import com.dukendev.genericgallery.domain.use_case.LocalMediaUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class ImagesViewModel(private val context: Context) : ViewModel() {
+class ImagesViewModel(private val mediaUseCase: LocalMediaUseCase) : ViewModel() {
 
-    var imagesFlow: Flow<PagingData<ImageItem>>? = null
-        private set
 
     var selectedImagePath: MutableStateFlow<ImageItem?> = MutableStateFlow(null)
         private set
@@ -25,12 +18,9 @@ class ImagesViewModel(private val context: Context) : ViewModel() {
         selectedImagePath.value = image
     }
 
-    fun letImagesFlow(bucketId: String) {
-        imagesFlow = Pager(
-            config = PagingConfig(pageSize = 30),
-            pagingSourceFactory = { ImagePagingSource(context, bucketId = bucketId) }
-        ).flow
-    }
+    fun getImagesForBucket(bucketId: String) = mediaUseCase.letImagesFlow(bucketId)
+
+
 }
 
 

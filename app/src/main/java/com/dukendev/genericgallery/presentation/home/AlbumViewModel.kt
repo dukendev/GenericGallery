@@ -1,21 +1,13 @@
 package com.dukendev.genericgallery.presentation.home
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingData
-import com.dukendev.genericgallery.data.data_source.GalleryPagingSource
-import com.dukendev.genericgallery.data.model.FolderItem
-import kotlinx.coroutines.flow.Flow
+import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
+import com.dukendev.genericgallery.domain.use_case.LocalMediaUseCase
 
-class AlbumViewModel(private val context: Context) : ViewModel() {
+class AlbumViewModel(private val mediaUseCase: LocalMediaUseCase) : ViewModel() {
 
-
-    val albumsFlow: Flow<PagingData<FolderItem>> = Pager(
-        config = PagingConfig(pageSize = 30),
-        pagingSourceFactory = { GalleryPagingSource(context) }
-    ).flow
+    fun getAlbums() = mediaUseCase.letAlbumsFlow().cachedIn(viewModelScope)
 
 
 }

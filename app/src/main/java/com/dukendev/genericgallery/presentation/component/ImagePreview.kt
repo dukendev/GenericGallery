@@ -39,7 +39,7 @@ fun ImagePreview(modifier: Modifier, imageItem: ImageItem) {
             verticalArrangement = Arrangement.Top
         ) {
             Image(
-                painter = if (imageItem.path.isNotEmpty()) rememberAsyncImagePainter(model = imageItem.path) else painterResource(
+                painter = if (imageItem.path?.isNotEmpty() == true) rememberAsyncImagePainter(model = imageItem.path) else painterResource(
                     id = R.drawable.folder_empty
                 ),
                 contentDescription = null,
@@ -58,7 +58,7 @@ fun ImagePreview(modifier: Modifier, imageItem: ImageItem) {
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = imageItem.name,
+                    text = imageItem.name ?: "",
                     style = MaterialTheme.typography.bodyLarge.copy(Color.White),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis

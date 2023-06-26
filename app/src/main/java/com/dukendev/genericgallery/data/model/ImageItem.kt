@@ -1,12 +1,12 @@
 package com.dukendev.genericgallery.data.model
 
 data class ImageItem(
-    val path: String,
-    val name: String,
-    val size: Int,
-    val mimeType: String,
-    val bucketName : String,
-    val bucketId : String
+    val path: String?,
+    val name: String?,
+    val size: Int = 0,
+    val mimeType: String?,
+    val bucketName : String?,
+    val bucketId : String?
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

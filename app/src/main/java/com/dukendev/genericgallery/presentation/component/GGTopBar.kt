@@ -22,8 +22,6 @@ fun GGTopBar(
     scrollBehavior: TopAppBarScrollBehavior,
     onNavigate: () -> Unit = {}
 ) {
-
-
     MediumTopAppBar(title = {
         Text(text = title, style = MaterialTheme.typography.headlineMedium)
     }, navigationIcon = {

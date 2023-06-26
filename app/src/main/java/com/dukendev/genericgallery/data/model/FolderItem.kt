@@ -1,10 +1,10 @@
 package com.dukendev.genericgallery.data.model
 
 data class FolderItem(
-    val bucketId : String,
-    val bucketName : String,
-    val relativePath : String,
-    val data : String
+    val bucketId : String?,
+    val bucketName : String?,
+    val relativePath : String?,
+    val data : String?
 ){
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

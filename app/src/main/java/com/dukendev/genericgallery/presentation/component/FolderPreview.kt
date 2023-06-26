@@ -48,7 +48,7 @@ fun FolderPreview(modifier: Modifier = Modifier, folderItem: FolderItem, onItemC
             verticalArrangement = Arrangement.Top
         ) {
             Image(
-                painter = if (folderItem.data.isNotEmpty()) rememberAsyncImagePainter(model = folderItem.data) else painterResource(
+                painter = if (folderItem.data?.isNotEmpty() == true) rememberAsyncImagePainter(model = folderItem.data) else painterResource(
                     id = R.drawable.folder_empty
                 ),
                 contentDescription = null,
@@ -67,13 +67,13 @@ fun FolderPreview(modifier: Modifier = Modifier, folderItem: FolderItem, onItemC
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = folderItem.bucketName,
+                    text = folderItem.bucketName ?: "",
                     style = MaterialTheme.typography.bodyLarge,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = folderItem.relativePath,
+                    text = folderItem.relativePath ?: "",
                     style = MaterialTheme.typography.labelSmall,
                     maxLines = 2,
                     overflow = TextOverflow.Visible

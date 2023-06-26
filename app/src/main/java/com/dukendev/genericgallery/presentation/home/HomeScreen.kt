@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -101,7 +102,9 @@ fun HomeScreen(
                 systemUiController.isSystemBarsVisible = false
                 systemUiController.isNavigationBarVisible = false
             }
-            val albumsFlow = viewModel.albumsFlow.collectAsLazyPagingItems()
+            val albumsFlow = remember {
+                viewModel.getAlbums()
+            }.collectAsLazyPagingItems()
 
             Surface(
                 modifier = Modifier.fillMaxSize(),
@@ -155,8 +158,11 @@ fun HomeScreen(
                                 item {
                                     Text(text = (albumsFlow.loadState.append as LoadState.Error).error.message.toString())
                                 }
-
                                 Log.d("app", "error")
+                            }
+
+                            else -> {
+                                item { CircularProgressIndicator() }
                             }
                         }
                     }
